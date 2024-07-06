@@ -1,8 +1,11 @@
 from openai import OpenAI
+import os
+
+
 
 
 def answer_gpt(user_content):
-    
+    chatgpt = OpenAI(api_key=os.environ.get('GPT_API_KEY'))
     
     messages.append({"role" : "user", "content" : f"{user_content}"})
 
