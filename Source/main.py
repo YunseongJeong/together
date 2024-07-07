@@ -1,5 +1,5 @@
 from gpt_client import answer_gpt
-from crawl_announcement import crawl_anns, Announcement
+from crawl_announcement import crawl_anns, Announcement, AnnouncementPages
 from selenium_test import WriteNoticeService
 from dotenv import load_dotenv
 import os
@@ -7,7 +7,7 @@ import os
 def main():
     load_dotenv()
     
-    anns = crawl_anns("https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDExJTI2c3JjaFdyZCUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNg%3D%3D")
+    anns = crawl_anns(AnnouncementPages.naoe.value)
     
     announcements = []
 
