@@ -1,6 +1,6 @@
 from gpt_client import answer_gpt
 from crawl_announcement import crawl_anns, Announcement, AnnouncementPages
-from selenium_test import WriteNoticeService
+from selenium_service import WriteNoticeService
 from dotenv import load_dotenv
 import os
 
