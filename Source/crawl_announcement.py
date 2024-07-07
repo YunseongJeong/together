@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 from string_function import check_keywords_in_string
 import requests
@@ -24,10 +25,24 @@ class Announcement :
     def get_image_path(self) :
         return self.image_path
 
+class AnnouncementPage:
+    def __init__(self, page_url, default_url) -> None:
+        self.page_url = page_url
+        self.default_url = default_url
 
-def get_anns_url(page_url : str) -> List[Announcement]:
+class AnnouncementPages(Enum):
+    cse = AnnouncementPage(
+        page_url="https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDEyJTI2c3JjaFdyZCUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNg%3D%3D",
+        default_url="https://cse.pusan.ac.kr"
+    )
+    naoe = AnnouncementPage(
+        page_url="http://www.naoe.pusan.ac.kr/naoe/15332/subview.do",
+        default_url="http://www.naoe.pusan.ac.kr"
+    )
+
+def get_anns_url(announcementPage : AnnouncementPage) -> List[Announcement]:
     try:
-        response = requests.get(page_url)
+        response = requests.get(announcementPage.page_url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(e.strerror)
@@ -44,12 +59,12 @@ def get_anns_url(page_url : str) -> List[Announcement]:
             element =line.find('a', class_='artclLinkView')
             if element:
                 url = element['href']
-            urls.append("https://cse.pusan.ac.kr" + url)
+            urls.append(announcementPage.default_url + url)
         
     return urls
     
 
-def crawl_ann(url: str) -> Announcement:
+def crawl_ann(url:str, annoucementPage : AnnouncementPage) -> Announcement:
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -85,7 +100,7 @@ def crawl_ann(url: str) -> Announcement:
     for link_tag in inserts:
         doc_url = link_tag.find("a")
         if (doc_url != -1):
-            href = "https://cse.pusan.ac.kr" + doc_url["href"]
+            href = annoucementPage.default_url + doc_url["href"]
             file_url = href
             file_name = doc_url.get_text(strip=True)
             file_path = os.path.join('downloads', file_name)
@@ -110,14 +125,14 @@ def crawl_ann(url: str) -> Announcement:
 
         
 
-def crawl_anns(url: str) :
-    urls = get_anns_url(url)
+def crawl_anns(announcementPage : AnnouncementPage) :
+    urls = get_anns_url(announcementPage)
     # print(urls)
     results = []
     for url in urls:
-        results.append(crawl_ann(url))
+        results.append(crawl_ann(url, announcementPage))
     return results
 
-crawl_anns("https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDEyJTI2c3JjaFdyZCUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNg%3D%3D")
+#crawl_anns("https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDEyJTI2c3JjaFdyZCUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNg%3D%3D")
 
 
