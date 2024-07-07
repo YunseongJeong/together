@@ -26,18 +26,21 @@ class Announcement :
         return self.image_path
 
 class AnnouncementPage:
-    def __init__(self, page_url, default_url) -> None:
+    def __init__(self, page_url, default_url, notice_board_name) -> None:
         self.page_url = page_url
         self.default_url = default_url
+        self.notice_board_name = notice_board_name
 
 class AnnouncementPages(Enum):
     cse = AnnouncementPage(
-        page_url="https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDEyJTI2c3JjaFdyZCUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNg%3D%3D",
-        default_url="https://cse.pusan.ac.kr"
+        page_url="https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDElMjZzcmNoV3JkJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZiYnNDbFNlcSUzRCUyNnJnc0VuZGRlU3RyJTNEJTI2",
+        default_url="https://cse.pusan.ac.kr",
+        notice_board_name = "공모전/ 공대"
     )
     naoe = AnnouncementPage(
         page_url="http://www.naoe.pusan.ac.kr/naoe/15332/subview.do",
-        default_url="http://www.naoe.pusan.ac.kr"
+        default_url="http://www.naoe.pusan.ac.kr",
+        notice_board_name = "공모전/ 공대"
     )
 
 def get_anns_url(announcementPage : AnnouncementPage) -> List[Announcement]:
@@ -79,7 +82,6 @@ def crawl_ann(url:str, annoucementPage : AnnouncementPage) -> Announcement:
     span_tags = main_section.find_all("span")
     article = [tag.get_text().replace("\xa0", " ") + "\n" for tag in span_tags]
     print(article)
-    
     img_tags = soup.find_all('img')
     img_path = None
     os.makedirs('images', exist_ok=True)
@@ -117,7 +119,7 @@ def crawl_ann(url:str, annoucementPage : AnnouncementPage) -> Announcement:
     return Announcement(
             title = title, 
             url = url, 
-            notice_board_name = "공모전/ 공대",
+            notice_board_name = annoucementPage.notice_board_name,
             content = article, 
             image_path = path
         )
@@ -127,12 +129,7 @@ def crawl_ann(url:str, annoucementPage : AnnouncementPage) -> Announcement:
 
 def crawl_anns(announcementPage : AnnouncementPage) :
     urls = get_anns_url(announcementPage)
-    # print(urls)
     results = []
     for url in urls:
         results.append(crawl_ann(url, announcementPage))
     return results
-
-#crawl_anns("https://cse.pusan.ac.kr/cse/14651/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGY3NlJTJGMjYwNSUyRmFydGNsTGlzdC5kbyUzRmJic09wZW5XcmRTZXElM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZzcmNoQ29sdW1uJTNEJTI2cGFnZSUzRDEyJTI2c3JjaFdyZCUzRCUyNnJnc0JnbmRlU3RyJTNEJTI2YmJzQ2xTZXElM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNg%3D%3D")
-
-
