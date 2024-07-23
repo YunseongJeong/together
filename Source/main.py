@@ -1,13 +1,17 @@
 from gpt_client import answer_gpt
-from crawl_announcement import crawl_anns, Announcement, AnnouncementPages
+from crawl_announcement import crawl_anns, Announcement
 from selenium_service import WriteNoticeService
 from dotenv import load_dotenv
 import os
+import json
+from page_url_manager import AnnouncementPage, PageUrlManager
 
 def main():
     load_dotenv()
-    
-    anns = crawl_anns(AnnouncementPages.naoe.value)
+    page_url_manager = PageUrlManager()
+    anns = []
+    for announcemnt in page_url_manager.announcement_pages:
+        anns += crawl_anns(announcemnt)
     
     announcements = []
 
@@ -17,9 +21,17 @@ def main():
 
     for ann in anns:
         print("\n\n\n\n")
-        ann.content = answer_gpt(ann.get_content())
+        try:
+            answer = answer_gpt(ann.get_content())
+            data = json.loads(answer)
+        except:
+            continue
+        print(answer)
+        
+        ann.notice_board_name = data["category"]
+        ann.content = data["content"]
         announcements.append(ann)
-        WriteNoticeService().write_notices(id, pw, course_name, announcements) 
+    WriteNoticeService().write_notices(id, pw, course_name, announcements) 
 
 if __name__ == "__main__":
     main()
