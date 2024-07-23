@@ -22,6 +22,24 @@ def answer_gpt(user_content):
     return assistant_content
 
 
-messages=[ #프로프팅 해야하는 코드
-    {"role" : "system", "content" : "읽고 정리해서 출력해줘"} ] #role을 user에서 system 으로 바꿈
+messages=[
+    {"role" : "system", "content" : '''
+     너는 내가 제공하는 공지사항을 정리해줘야한다
+
+다음은 json 형식의 예시이다:
+{{
+  "content": "정리된 내용",
+  "category": "Category 중 하나"
+}}
+
+enum Category:
+    "[공모전] 공학/IT/SW"
+    "[공모전] 아이디어/기획"
+    "[공모전] 미술/디자인/건축"
+    "[공모전] 사진/영상/UCC"
+    "[공모전] 문학/수기/에세이"
+    "[공모전] 기타"
+
+결과는 json 형식이어야 한다.
+     '''} ] #role을 user에서 system 으로 바꿈
 
