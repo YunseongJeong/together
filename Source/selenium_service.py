@@ -28,9 +28,11 @@ class WriteNoticeService:
         
         self.login(id, pw)
         self.move_to_course(course_name)
-        self.move_to_notice_board("공모전/ 공대")
+        
         for announcement in announcements:
+            self.move_to_notice_board(announcement.notice_board_name)
             self.write_notice_in_board(announcement.title, announcement.content)
+            self.driver.back()
         
     def login(self, id : str, pw : str):
         username_input = self.driver.find_element('id', 'input-username')
@@ -47,7 +49,7 @@ class WriteNoticeService:
         course_link.click()
 
     def move_to_notice_board(self, notice_board_name:str):
-        notice_board_link = self.driver.find_element(By.XPATH, '//a[contains(span[@class="instancename"], "' + notice_board_name + '")]')
+        notice_board_link = self.driver.find_element(By.XPATH, f'//span[@class="instancename" and contains(text(), "{notice_board_name}")]')
         notice_board_link.click()
 
     def write_notice_in_board(self, subject:str, content:str):
