@@ -27,7 +27,7 @@ def is_recent_title_duplicate(new_title, filename='titles.txt'):
         with open(filename, 'r', encoding='utf-8') as file:
             lines = file.readlines()
             for line in lines:
-                saved_date, saved_title = line.strip().split('|')
+                saved_date, saved_title = line.strip().split('$')
                 saved_date = datetime.strptime(saved_date, '%Y-%m-%d')
                 if saved_date > datetime.now() - timedelta(days=7):
                     recent_titles.append(saved_title)
@@ -40,10 +40,9 @@ def is_recent_title_duplicate(new_title, filename='titles.txt'):
     while len(encoding.encode(combined_text)) > 15000:
         recent_titles.pop(0)  # 가장 오래된 제목 제거
         combined_text = new_title + "\n" + "\n".join(recent_titles)
-    # print(recent_titles)
     return check_title_similarity(new_title, recent_titles)
 
 
 def save_title(title, filename='titles.txt'):
     with open(filename, 'a', encoding='utf-8') as file:
-        file.write(f"{datetime.now().strftime('%Y-%m-%d')}|{title}\n")
+        file.write(f"{datetime.now().strftime('%Y-%m-%d')}${title}\n")
