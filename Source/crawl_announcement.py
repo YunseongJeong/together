@@ -6,26 +6,14 @@ from bs4 import BeautifulSoup
 import os
 from page_url_manager import AnnouncementPage
 
-class Announcement :
-    def __init__(self, title : str,  content : str, url : str) :
+class Announcement:
+    def __init__(self, title: str, content_html: str, content_text: str, notice_board_name: str, url: str, files: list):
         self.title = title
         self.url = url
-        self.notice_board_name = None
-        self.content = content
-        # self.image_path = image_path
-
-    def get_title(self) :
-        return self.title
-
-    def get_url(self) :
-        return self.url
-    
-    def get_content(self) :
-        return self.content
-    
-    def get_image_path(self) :
-        return self.image_path
-
+        self.content_html = content_html
+        self.content_text = content_text
+        self.notice_board_name = notice_board_name
+        self.files = files
 
 def get_anns_url(announcementPage : AnnouncementPage) -> List[Announcement]:
     try:
@@ -42,72 +30,65 @@ def get_anns_url(announcementPage : AnnouncementPage) -> List[Announcement]:
     urls = []
     
     for line in table:
-        if check_keywords_in_string(line.getText(), ["대회", "공모전"]):
-            element =line.find('a', class_='artclLinkView')
-            if element:
-                url = element['href']
-            urls.append(announcementPage.default_url + url)
+        # if check_keywords_in_string(line.getText(), ["대회", "공모전"]):
+        element =line.find('a', class_='artclLinkView')
+        if element:
+            url = element['href']
+        urls.append(announcementPage.default_url + url)
         
     return urls
     
 
-def crawl_ann(url:str, annoucementPage : AnnouncementPage) -> Announcement:
+def crawl_ann(url: str) -> Announcement:
     try:
         response = requests.get(url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(e.strerror)
+        print(e)
+        return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
+    base_url = response.url.split('/bbs/')[0]
 
     title_element = soup.find("h2", class_="artclViewTitle")
     title = title_element.get_text(strip=True) if title_element else "Title not found"
-    main_section = soup.find('div', "artclView")
-    span_tags = main_section.find_all("span")
-    article = [tag.get_text().replace("\xa0", " ") + "\n" for tag in span_tags]
-    if article == []:
-        return
-    # img_tags = soup.find_all('img')
-    # img_path = None
-    # os.makedirs('images', exist_ok=True)
-    # for img_tag in img_tags:
-    #     img_url = img_tag['src']
-    #     img_name = img_url.split('/')[-1] 
-    #     img_path = os.path.join('images', img_name)
 
-    #     img_data = requests.get(img_url).content
-    #     with open(img_path, 'wb') as f:
-    #         f.write(img_data)
-    #         print(f'Saved {img_name}')
-    
+    # 텍스트 콘텐츠 추출
+    content_text_element = soup.find('div', class_="artclView")
+    content_text = content_text_element.get_text(strip=True) if content_text_element else "Content not found"
 
-    # inserts = soup.find('dd', "artclInsert")
-    # os.makedirs('downloads', exist_ok=True)
-    # file_path = None
-    # for link_tag in inserts:
-    #     doc_url = link_tag.find("a")
-    #     if (doc_url != -1):
-    #         href = annoucementPage.default_url + doc_url["href"]
-    #         file_url = href
-    #         file_name = doc_url.get_text(strip=True)
-    #         file_path = os.path.join('downloads', file_name)
-    #         file_data = requests.get(file_url).content
-    #         with open(file_path, 'wb') as f:
-    #             f.write(file_data)
-    #             print(f'Saved {file_name}')
-    
-    # path = img_path
-    # if (img_path == None) :
-    #     path = file_path
- 
- 
+    # HTML 콘텐츠 추출
+    content_html = str(content_text_element) if content_text_element else "Content not found"
+
+    # 파일 다운로드
+    inserts = soup.find_all('dd', class_="artclInsert")
+    os.makedirs('downloads', exist_ok=True)
+    files = []
+    for insert in inserts:
+        li_tags = insert.find_all("li")
+        for li in li_tags:
+            link_tag = li.find("a")
+            if link_tag and 'download.do' in link_tag["href"]:
+                file_url = link_tag["href"]
+                if not file_url.startswith('http'):
+                    file_url = base_url + file_url
+                file_name = link_tag.get_text(strip=True)
+                file_path = os.path.join('downloads', file_name)
+                file_data = requests.get(file_url).content
+                with open(file_path, 'wb') as f:
+                    f.write(file_data)
+                files.append(file_path)
+                print(f'파일 다운로드 완료: {file_path}')  # 파일 다운로드 완료 메시지 출력
+
     return Announcement(
-            title = title, 
-            url = url, 
-            # notice_board_name = annoucementPage.notice_board_name,
-            content = article, 
-            # image_path = path
-        )
+        title=title,
+        url=url,
+        notice_board_name="",
+        content_html=content_html,
+        content_text=content_text,
+        files=files
+    )
+
 
 
         
@@ -116,7 +97,7 @@ def crawl_anns(announcementPage : AnnouncementPage) :
     urls = get_anns_url(announcementPage)
     results = []
     for url in urls:
-        temp = crawl_ann(url, announcementPage)
+        temp = crawl_ann(url)
         if (temp != None):
             results.append(temp)
     return results
