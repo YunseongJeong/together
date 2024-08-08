@@ -33,7 +33,6 @@ class WriteNoticeService:
             if announcement.notice_board_name != "해당없음":
                 self.move_to_notice_board(announcement.notice_board_name)
                 self.write_notice_in_board(announcement.title, announcement.content_html, announcement.files)
-                self.driver.back()
         
     def login(self, id: str, pw: str):
         username_input = self.driver.find_element(By.ID, 'input-username')
