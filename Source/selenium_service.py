@@ -1,8 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import os
 from typing import List
 from crawl_announcement import Announcement
+from bs4 import BeautifulSoup
 
 class WriteNoticeService:
     def __init__(self) :
@@ -49,7 +53,7 @@ class WriteNoticeService:
         notice_board_link = self.driver.find_element(By.XPATH, '//a[contains(span[@class="instancename"], "' + notice_board_name + '")]')
         notice_board_link.click()
 
-    def write_notice_in_board(self, subject:str, content:str):
+    def write_notice_in_board(self, subject: str, content: str, files: List[str]):
         write_button = self.driver.find_element(By.XPATH, '//a[contains(text(), "쓰기")]')
         write_button.click()
 
