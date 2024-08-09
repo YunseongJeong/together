@@ -11,11 +11,12 @@ from dotenv import load_dotenv
 
 
 class WriteNoticeService:
+    def set_chrome_driver_path(self, path):
+        self.chrome_driver_path = path
     def __init__(self):
         load_dotenv()
         window_size = os.getenv('WINDOW_SIZE')
         user_agent = os.getenv('USER_AGENT')
-        chrome_driver_path = os.getenv('CHROME_DRIVER_PATH')
 
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
