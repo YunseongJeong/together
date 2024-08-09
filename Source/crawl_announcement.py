@@ -20,6 +20,10 @@ class AnnouncementPage:
         self.default_url = default_url
 
 
+def clean_title(title):
+    return ' '.join(title.split()) # 공지사항 제목을 한 줄로 정리
+
+
 def get_anns_url(announcementPage: AnnouncementPage) -> List[str]:
     try:
         response = requests.get(announcementPage.page_url)
@@ -53,14 +57,18 @@ def crawl_ann_partial(url: str) -> Announcement:
 
     soup = BeautifulSoup(response.text, 'html.parser')
     title_element = soup.find("h2", class_="artclViewTitle")
-    title = title_element.get_text(strip=True) if title_element else "Title not found"
+    title = clean_title(title_element.get_text(strip=True))
+
+    # 텍스트 콘텐츠 추출
+    content_text_element = soup.find('div', class_="artclView")
+    content_text = content_text_element.get_text(strip=True)
 
     return Announcement(
         title=title,
         url=url,
         notice_board_name="",
         content_html="",
-        content_text="",
+        content_text=content_text,
         files=[]
     )
 
@@ -77,7 +85,7 @@ def crawl_ann(url: str) -> Announcement:
     base_url = response.url.split('/bbs/')[0]
 
     title_element = soup.find("h2", class_="artclViewTitle")
-    title = title_element.get_text(strip=True) if title_element else "Title not found"
+    title = clean_title(title_element.get_text(strip=True))
 
     # 텍스트 콘텐츠 추출
     content_text_element = soup.find('div', class_="artclView")
