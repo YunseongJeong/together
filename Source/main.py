@@ -52,13 +52,13 @@ def categorize_announcement(title, content_text):
         return answer_gpt(truncated_content)
 
 
-def main():
+def main(id, pw, path):
     load_dotenv()
     page_url_manager = PageUrlManager()
     announcements = []
 
-    id = os.environ.get("PLATO_ID")
-    pw = os.environ.get("PLATO_PW")
+    # id = os.environ.get("PLATO_ID")
+    # pw = os.environ.get("PLATO_PW")
     course_name = "[테스트]"
 
     for announcement_page in page_url_manager.announcement_pages:
@@ -95,7 +95,9 @@ def main():
                     full_ann.notice_board_name = category  # 게시판 이름 업데이트
                     announcements.append(full_ann)
                     save_title(partial_ann.title)  # 제목 저장
-                    WriteNoticeService().write_notices(id, pw, course_name, [full_ann])  # 공지사항 작성
+                    writeNoticeService = WriteNoticeService()
+                    writeNoticeService.set_chrome_driver_path(path)
+                    writeNoticeService.write_notices(id, pw, course_name, [full_ann])  # 공지사항 작성
                     print(f"게시글 작성 완료\n")
                 else:
                     print("")
