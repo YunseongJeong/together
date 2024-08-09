@@ -1,5 +1,8 @@
 import os
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # OpenAI 클라이언트 설정
 client = OpenAI(
