@@ -110,7 +110,7 @@ class WriteNoticeService:
         self.click_with_js('a[role="button"][title="추가 ..."].btn.btn-default.btn-sm')
 
         # 파일 선택 요소 찾기
-        file_input = WebDriverWait(self.driver, 5).until(
+        file_input = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'input[type="file"]'))
         )
 
